@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facts Added by Date</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fff0f5; margin: 0; padding: 24px; }
+        main { max-width: 800px; margin: 24px auto; background: white; padding: 24px; border-radius: 16px; }
+        h1 { margin-top: 0; }
+        .chart-container { height: 360px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    </style>
+    <script src="{% static 'pittrain/chart.umd.min.js' %}"></script>
+</head>
+<body>
+    <main>
+        <h1>Facts Added by Date</h1>
+        <p>PIT Airport Train Facts &middot; Total facts: {{ total }}</p>
+        {% if total %}
+        <div class="chart-container">
+            <canvas id="factChart" role="img" aria-label="Bar chart showing the number of facts added on each date. See the table below for the data."></canvas>
+        </div>
+        {% else %}
+        <p>No facts have been added yet.</p>
+        {% endif %}
+        <table>
+            <thead><tr><th scope="col">Date added</th><th scope="col">Number of facts</th></tr></thead>
+            <tbody>
+                {% for row in daily_counts %}
+                <tr><td>{{ row.dateAdded|date:"Y-m-d" }}</td><td>{{ row.count }}</td></tr>
+                {% empty %}
+                <tr><td colspan="2">No data yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    {{ dates|json_script:"chart-dates" }}
+    {{ counts|json_script:"chart-counts" }}
+    <script>
+        const dates = JSON.parse(document.getElementById('chart-dates').textContent);
+        const counts = JSON.parse(document.getElementById('chart-counts').textContent);
+
+        if (dates.length > 0) {
+            new Chart(document.getElementById('factChart'), {
+                type: 'bar',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Facts added',
+                        data: counts,
+                        backgroundColor: '#4285f4',
+                        borderRadius: 6,
+                        maxBarThickness: 90
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Date added' } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0 },
+                            title: { display: true, text: 'Number of facts' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

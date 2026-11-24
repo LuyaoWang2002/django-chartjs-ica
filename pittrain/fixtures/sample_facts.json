@@ -1,0 +1,10 @@
+[
+  {
+    "model": "pittrain.pitairporttrainfact",
+    "pk": 1,
+    "fields": {
+      "dateAdded": "2026-11-17",
+      "funFact": "This is a test train fact."
+    }
+  }
+]
